@@ -1,0 +1,12 @@
+{
+  "name": "pepper-challenge-2",
+  "version": "1.0.0",
+  "description": "Clean up of the javascript. Task was to fix potential issues and improve the overall quality of the code.",
+  "scripts": {
+    "start": "http-server"
+  },
+  "author": "",
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
