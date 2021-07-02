@@ -1,62 +1,103 @@
-/**
- * This code needs help.
- */
-
 import { getUserByName, getUserInfractions } from './user-api.js';
 
-/**
- * @param {string} username
- * @param {function(string)} callback
- */
-function getReasonForWorstInfractionLinkified(username, callback) {
-	getUserByName(username, function (user) {
-		getUserInfractions(user.id, function (result) {
-			// find most recent infraction with most infraction points
-			let foundIndex = 0;
-			for (let i = result.length - 1; i >= 0; i--) {
-				if (result[i].points > result[foundIndex].points) {
-					foundIndex = i;
-				}
-			}
+class App {
+	/**
+	 * Root element of the app
+	 */
+	appElement;
 
-			// replace urls by links
-			callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
+	static createApp(selector) {
+		const app = document.getElementById(selector);
+		return new App(app);
+	}
+
+	constructor(appElement) {
+		this.appElement = appElement;
+		this.init();
+	}
+
+	init() {
+		const output = this.getOutput();
+		this.appElement.insertAdjacentHTML('beforeend', output);
+		this.getRelevantInfractionReasons('John').then((data) => {
+			app.insertAdjacentHTML('beforeend', `Infraction reasons: <pre>${JSON.stringify(data, null, ' ')}</pre>`);
 		});
-	});
-}
+	}
 
-/**
- * @param {string} name
- * @param {function(string)} callback
- */
-function getReasonForMostRecentInfractionLinkified(name, callback) {
-	getUserByName(name, function (user) {
-		getUserInfractions(user.id, function (result) {
-			// find most recent infraction
-			let foundIndex = 0;
-			for (let i = 1; i < result.length; i++) {
-				if (result[i].id > result[foundIndex].id) {
-					foundIndex = i;
+	getOutput() {
+		return this.isLocalServer
+			? `<p>
+			This document is only there to show the result of the function <code>getRelevantInfractionReasons</code>.
+		</p>
+		<p>
+			Please improve the code quality in <code>index.js</code> as best as you can. Also possible bugs should be fixed.<br>
+			The other files must remain unchanged, but you can add new files if needed.
+			You can utilise any modern JS features that are supported in latest chrome, but don't use any third-party libraries.<br>
+			Have fun!
+		</p>`
+			: `<strong>Sorry, you need to run this through a local server!</strong>`;
+	}
+
+	isLocalServer() {
+		return Boolean(location.host);
+	}
+
+	/**
+	 * @param {string} username
+	 * @param {function(string)} callback
+	 */
+	getReasonForWorstInfractionLinkified(username, callback) {
+		getUserByName(username, (user) => {
+			getUserInfractions(user.id, (result) => {
+				// find most recent infraction with most infraction points
+				let foundIndex = 0;
+				for (let i = result.length - 1; i >= 0; i--) {
+					if (result[i].points > result[foundIndex].points) {
+						foundIndex = i;
+					}
 				}
-			}
 
-			// replace urls by links
-			callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
-		});
-	});
-}
-
-/**
- * Returns reason of the worst & the most recent user infraction with linkified urls
- * @param {string} username
- * @returns {Promise.<Object>}
- */
-export function getRelevantInfractionReasons(username) {
-	return new Promise(function (resolve) {
-		getReasonForWorstInfractionLinkified(username, function (worst) {
-			getReasonForMostRecentInfractionLinkified(username, function (mostRecent) {
-				resolve({ mostRecent, worst });
+				// replace urls by links
+				callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
 			});
 		});
-	});
+	}
+
+	/**
+	 * @param {string} name
+	 * @param {function(string)} callback
+	 */
+	getReasonForMostRecentInfractionLinkified(name, callback) {
+		getUserByName(name, (user) => {
+			getUserInfractions(user.id, (result) => {
+				// find most recent infraction
+				let foundIndex = 0;
+				for (let i = 1; i < result.length; i++) {
+					if (result[i].id > result[foundIndex].id) {
+						foundIndex = i;
+					}
+				}
+
+				// replace urls by links
+				callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
+			});
+		});
+	}
+
+	/**
+	 * Returns reason of the worst & the most recent user infraction with linkified urls
+	 * @param {string} username
+	 * @returns {Promise.<Object>}
+	 */
+	getRelevantInfractionReasons(username) {
+		return new Promise((resolve) => {
+			this.getReasonForWorstInfractionLinkified(username, (worst) => {
+				this.getReasonForMostRecentInfractionLinkified(username, (mostRecent) => {
+					resolve({ mostRecent, worst });
+				});
+			});
+		});
+	}
 }
+
+App.createApp('app');
