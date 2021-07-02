@@ -44,9 +44,8 @@ class App {
 
 	/**
 	 * @param {string} username
-	 * @param {function(string)} callback
 	 */
-	async getReasonForWorstInfractionLinkified(username, callback) {
+	async getReasonForWorstInfractionLinkified(username) {
 		const user = await getUserByName(username);
 
 		const result = await getUserInfractions(user.id);
@@ -59,27 +58,26 @@ class App {
 		}
 
 		// replace urls by links
-		return result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
+		return this.replaceUrlByLinks(result[foundIndex].reason);
 	}
 
 	/**
 	 * @param {string} name
-	 * @param {function(string)} callback
 	 */
 	async getReasonForMostRecentInfractionLinkified(name) {
 		const user = await getUserByName(name);
 		const result = await getUserInfractions(user.id);
 
-		// find most recent infraction
-		let foundIndex = 0;
-		for (let i = 1; i < result.length; i++) {
-			if (result[i].id > result[foundIndex].id) {
-				foundIndex = i;
-			}
-		}
+		const recentItem = result.reduce((currentMostRecentItem, currentItem) => {
+			return currentMostRecentItem.id < currentItem.id ? currentItem : currentMostRecentItem;
+		});
 
 		// replace urls by links
-		return result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
+		return this.replaceUrlByLinks(recentItem.reason);
+	}
+
+	replaceUrlByLinks(string) {
+		return string.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
 	}
 
 	/**
