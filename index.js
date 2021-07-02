@@ -1,5 +1,10 @@
 import { getUserByName, getUserInfractions } from './user-api.js';
 
+export const InfractionTypes = {
+	MostRecent: 'MostRecent',
+	Worst: 'Worst',
+};
+
 class App {
 	/**
 	 * Root element of the app
@@ -43,41 +48,36 @@ class App {
 	}
 
 	/**
-	 * @param {string} username
+	 * Gets the reason for the most recent and worst infraction linkified
+	 * @param {*} result
+	 * @returns {string}
 	 */
-	async getReasonForWorstInfractionLinkified(username) {
-		const user = await getUserByName(username);
+	getInfractionLinkified(result) {
+		let worstIndex = 0;
+		let mostRecentIndex = 0;
 
-		const result = await getUserInfractions(user.id);
-		// find most recent infraction with most infraction points
-		let foundIndex = 0;
-		for (let i = result.length - 1; i >= 0; i--) {
-			if (result[i].points > result[foundIndex].points) {
-				foundIndex = i;
+		for (let i = 0; i <= result.length - 1; i++) {
+			if (result[i].points > result[worstIndex].points) {
+				worstIndex = i;
+			}
+			if (result[i].id > result[mostRecentIndex].id) {
+				mostRecentIndex = i;
 			}
 		}
 
-		// replace urls by links
-		return this.replaceUrlByLinks(result[foundIndex].reason);
+		return {
+			worst: this.replaceUrlByLinks(result[worstIndex].reason),
+			mostRecent: this.replaceUrlByLinks(result[mostRecentIndex].reason),
+		};
 	}
 
 	/**
-	 * @param {string} name
+	 *
+	 * @param {*} string
+	 * @returns
 	 */
-	async getReasonForMostRecentInfractionLinkified(name) {
-		const user = await getUserByName(name);
-		const result = await getUserInfractions(user.id);
-
-		const recentItem = result.reduce((currentMostRecentItem, currentItem) => {
-			return currentMostRecentItem.id < currentItem.id ? currentItem : currentMostRecentItem;
-		});
-
-		// replace urls by links
-		return this.replaceUrlByLinks(recentItem.reason);
-	}
-
 	replaceUrlByLinks(string) {
-		return string.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
+		return string.replace(/\bhttps:\/\/\S+/, (match) => `<a href='${match}'>${match}</a>`);
 	}
 
 	/**
@@ -86,10 +86,10 @@ class App {
 	 * @returns {Promise.<Object>}
 	 */
 	async getRelevantInfractionReasons(username) {
-		const worst = await this.getReasonForWorstInfractionLinkified(username);
-		const mostRecent = await this.getReasonForMostRecentInfractionLinkified(username);
+		const { id } = await getUserByName(username);
+		const result = await getUserInfractions(id);
 
-		return { mostRecent, worst };
+		return this.getInfractionLinkified(result);
 	}
 }
 
