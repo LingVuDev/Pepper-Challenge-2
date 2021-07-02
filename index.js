@@ -46,42 +46,40 @@ class App {
 	 * @param {string} username
 	 * @param {function(string)} callback
 	 */
-	getReasonForWorstInfractionLinkified(username, callback) {
-		getUserByName(username, (user) => {
-			getUserInfractions(user.id, (result) => {
-				// find most recent infraction with most infraction points
-				let foundIndex = 0;
-				for (let i = result.length - 1; i >= 0; i--) {
-					if (result[i].points > result[foundIndex].points) {
-						foundIndex = i;
-					}
-				}
+	async getReasonForWorstInfractionLinkified(username, callback) {
+		const user = await getUserByName(username);
 
-				// replace urls by links
-				callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
-			});
-		});
+		const result = await getUserInfractions(user.id);
+		// find most recent infraction with most infraction points
+		let foundIndex = 0;
+		for (let i = result.length - 1; i >= 0; i--) {
+			if (result[i].points > result[foundIndex].points) {
+				foundIndex = i;
+			}
+		}
+
+		// replace urls by links
+		return result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
 	}
 
 	/**
 	 * @param {string} name
 	 * @param {function(string)} callback
 	 */
-	getReasonForMostRecentInfractionLinkified(name, callback) {
-		getUserByName(name, (user) => {
-			getUserInfractions(user.id, (result) => {
-				// find most recent infraction
-				let foundIndex = 0;
-				for (let i = 1; i < result.length; i++) {
-					if (result[i].id > result[foundIndex].id) {
-						foundIndex = i;
-					}
-				}
+	async getReasonForMostRecentInfractionLinkified(name) {
+		const user = await getUserByName(name);
+		const result = await getUserInfractions(user.id);
 
-				// replace urls by links
-				callback(result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>'));
-			});
-		});
+		// find most recent infraction
+		let foundIndex = 0;
+		for (let i = 1; i < result.length; i++) {
+			if (result[i].id > result[foundIndex].id) {
+				foundIndex = i;
+			}
+		}
+
+		// replace urls by links
+		return result[foundIndex].reason.replace(/\bhttps:\/\/\S+/, (match) => '<a href="' + match + '">' + match + '</a>');
 	}
 
 	/**
@@ -89,14 +87,11 @@ class App {
 	 * @param {string} username
 	 * @returns {Promise.<Object>}
 	 */
-	getRelevantInfractionReasons(username) {
-		return new Promise((resolve) => {
-			this.getReasonForWorstInfractionLinkified(username, (worst) => {
-				this.getReasonForMostRecentInfractionLinkified(username, (mostRecent) => {
-					resolve({ mostRecent, worst });
-				});
-			});
-		});
+	async getRelevantInfractionReasons(username) {
+		const worst = await this.getReasonForWorstInfractionLinkified(username);
+		const mostRecent = await this.getReasonForMostRecentInfractionLinkified(username);
+
+		return { mostRecent, worst };
 	}
 }
 
