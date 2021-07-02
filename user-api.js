@@ -21,16 +21,16 @@ export let networkError = false;
  * @param {function(Error)} onError
  */
 export function getUserByName(userName, onSuccess, onError) {
-	setTimeout(() => {
-		if (networkError) {
-			onError(Error());
-			return;
-		}
+  setTimeout(() => {
+    if (networkError) {
+      onError(Error());
+      return;
+    }
 
-		const mockResult = userName === 'John' ? { id: '123', name: userName } : null;
+    const mockResult = userName === 'John' ? { id: '123', name: userName } : null;
 
-		onSuccess(mockResult);
-	}, 100);
+    onSuccess(mockResult);
+  }, 100);
 }
 
 /**
@@ -39,21 +39,21 @@ export function getUserByName(userName, onSuccess, onError) {
  * @param {function(Error)} onError
  */
 export function getUserInfractions(userId, onSuccess, onError) {
-	setTimeout(() => {
-		if (networkError) {
-			onError(Error());
-			return;
-		}
+  setTimeout(() => {
+    if (networkError) {
+      onError(Error());
+      return;
+    }
 
-		const mockResult =
-			userId === '123'
-				? [
-						{ id: '1', points: 5, reason: 'trolling' },
-						{ id: '2', points: 10, reason: 'frequent promotion of http://buy-my-product.com' },
-						{ id: '3', points: 1, reason: 'posted image of dogs in cat forum: https://placedog.net/300/200' },
-				  ]
-				: null;
+    const mockResult =
+      userId === '123'
+        ? [
+            { id: '1', points: 5, reason: 'trolling' },
+            { id: '2', points: 10, reason: 'frequent promotion of http://buy-my-product.com' },
+            { id: '3', points: 1, reason: 'posted image of dogs in cat forum: https://placedog.net/300/200' },
+          ]
+        : null;
 
-		onSuccess(mockResult);
-	}, 100);
+    onSuccess(mockResult);
+  }, 100);
 }

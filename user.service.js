@@ -8,42 +8,41 @@ import { getUserByName as legacyGetUserByName, getUserInfractions as legacyGetUs
  * @class UserService
  */
 export class UserService {
-	
   /**
    *
    * @param {*} userName
    * @returns
    */
   getUserByName(userName) {
-		return new Promise((resolve, reject) => {
-			legacyGetUserByName(
-				userName,
-				(onSuccess) => {
-					resolve(onSuccess);
-				},
-				(onError) => {
-					reject(onError);
-				}
-			);
-		});
-	}
+    return new Promise((resolve, reject) => {
+      legacyGetUserByName(
+        userName,
+        (onSuccess) => {
+          resolve(onSuccess);
+        },
+        (onError) => {
+          reject(onError);
+        }
+      );
+    });
+  }
 
-	/**
+  /**
    *
    * @param {*} userId
    * @returns
    */
   getUserInfractions(userId) {
-		return new Promise((resolve, reject) => {
-			legacyGetUserInfractions(
-				userId,
-				(onSuccess) => {
-					resolve(onSuccess);
-				},
-				(onError) => {
-					reject(onError);
-				}
-			);
-		});
-	}
+    return new Promise((resolve, reject) => {
+      legacyGetUserInfractions(
+        userId,
+        (onSuccess) => {
+          resolve(onSuccess);
+        },
+        (onError) => {
+          reject(onError);
+        }
+      );
+    });
+  }
 }
