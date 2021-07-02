@@ -1,0 +1,30 @@
+<!doctype html>
+<body>
+	<script>
+{
+	const output = location.host
+		? `<p>
+			This document is only there to show the result of the function <code>getRelevantInfractionReasons</code>.
+		</p>
+		<p>
+			Please improve the code quality in <code>index.js</code> as best as you can. Also possible bugs should be fixed.<br>
+			The other files must remain unchanged, but you can add new files if needed.
+			You can utilise any modern JS features that are supported in latest chrome, but don't use any third-party libraries.<br>
+			Have fun!
+		</p>`
+		: `<strong>Sorry, you need to run this through a local server!</strong>`;
+
+	document.body.insertAdjacentHTML('beforeend', output);
+}
+	</script>
+
+	<script type="module">
+        import { getRelevantInfractionReasons } from './index.js';
+
+        function outputJSON(data) {
+			document.body.insertAdjacentHTML('beforeend', `Infraction reasons: <pre>${JSON.stringify(data, null, ' ')}</pre>`)
+		}
+
+		getRelevantInfractionReasons('John').then(outputJSON);
+    </script>
+</body>
